@@ -35,12 +35,15 @@ python3 -m http.server 5173
 | `day06-smart-discovery/` | day06 SMART Discovery 與能力探索 | 新增 `discovery.js`，問出授權端點與 token 端點 |
 | `day09-first-authorization/` | day09 從頭跑完一次授權 | 再加上 `pkce.js` 與 `auth.js`，走完一趟 standalone 授權，console 印出 access token 與 patient id |
 | `day12-launch-context/` | day12 解析 Launch Context | 換用 `fhirclient`，`app.js` 整份替換成三十行不到的版本，畫面從 patient id 變成病人姓名與生日。其餘五個檔案與 day09 一字不差，`discovery.js`、`pkce.js`、`auth.js` 不再被引用但留著 |
+| `day14-token-lifecycle/` | day14 Token 的生命週期 | 第二幕終態，只剩 `index.html`、`app.js`、`vendor/` 三樣。`SCOPE` 加上 `offline_access`，多一顆按鈕手動換 token，並把用過的那張 refresh token 再送一次看伺服器收不收 |
 
 系列還在進行中，後面的資料夾會隨文章發布陸續加進來。
 
 day01 到 day03 與 day05 沒有可跑的專案，那幾篇是 FHIR 資源與 HTTP 請求的範例片段，直接讀文章即可。day07 全程在瀏覽器網址列上操作，一個檔案都不用動。day08 新增的 `pkce.js` 跑起來畫面與 day06 一樣，那一篇的驗證是在 console 裡做的，要對照參考寫法就看 `day09-first-authorization/pkce.js`，內容完全相同。
 
 day10 與 day11 也沒有各自的資料夾。兩篇的跟著做都是改 `auth.js` 裡 `SCOPE` 那個常數的值再重跑，day10 看同意畫面多幾行、day11 看 token response 少哪些欄位。檔案組成與 `day09-first-authorization/` 相同，開那一份改 `SCOPE` 就能重現兩篇的每一次實驗。
+
+day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著做的第四步是換成醫護身分再跑一次，收穫是兩種身分之下 `fhirUser` 指向的資源型別不同。任何一份靜態資料夾都只能凍結其中一次。開 `day14-token-lifecycle/` 就有那幾行讀 `id_token` 的寫法。
 
 ## 跑之前要先改一行
 
@@ -51,6 +54,7 @@ day10 與 day11 也沒有各自的資料夾。兩篇的跟著做都是改 `auth.
 | `day06-smart-discovery/app.js` | `FHIR_BASE_URL` |
 | `day09-first-authorization/app.js` | `FHIR_BASE_URL` |
 | `day12-launch-context/app.js` | `FHIR_BASE_URL` |
+| `day14-token-lifecycle/app.js` | `FHIR_BASE_URL` |
 
 到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。沒換的話抓不到端點，授權也會被授權伺服器擋下來。
 
