@@ -36,6 +36,7 @@ python3 -m http.server 5173
 | `day09-first-authorization/` | day09 從頭跑完一次授權 | 再加上 `pkce.js` 與 `auth.js`，走完一趟 standalone 授權，console 印出 access token 與 patient id |
 | `day12-launch-context/` | day12 解析 Launch Context | 換用 `fhirclient`，`app.js` 整份替換成三十行不到的版本，畫面從 patient id 變成病人姓名與生日。其餘五個檔案與 day09 一字不差，`discovery.js`、`pkce.js`、`auth.js` 不再被引用但留著 |
 | `day14-token-lifecycle/` | day14 Token 的生命週期 | 第二幕終態，只剩 `index.html`、`app.js`、`vendor/` 三樣。`SCOPE` 加上 `offline_access`，多一顆按鈕手動換 token，並把用過的那張 refresh token 再送一次看伺服器收不收 |
+| `day15-first-smart-app/` | day15 第一個 SMART app | 第三幕起點。新增 `patient.js` 把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。取姓名走四層 fallback，因為 Patient 上幾乎所有欄位都是選填的 |
 
 系列還在進行中，後面的資料夾會隨文章發布陸續加進來。
 
@@ -55,6 +56,7 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 | `day09-first-authorization/app.js` | `FHIR_BASE_URL` |
 | `day12-launch-context/app.js` | `FHIR_BASE_URL` |
 | `day14-token-lifecycle/app.js` | `FHIR_BASE_URL` |
+| `day15-first-smart-app/app.js` | `FHIR_BASE_URL` |
 
 到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。沒換的話抓不到端點，授權也會被授權伺服器擋下來。
 
