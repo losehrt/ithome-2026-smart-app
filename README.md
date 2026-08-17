@@ -38,6 +38,7 @@ python3 -m http.server 5173
 | `day14-token-lifecycle/` | day14 Token 的生命週期 | 第二幕終態，只剩 `index.html`、`app.js`、`vendor/` 三樣。`SCOPE` 加上 `offline_access`，多一顆按鈕手動換 token，並把用過的那張 refresh token 再送一次看伺服器收不收 |
 | `day15-first-smart-app/` | day15 第一個 SMART app | 第三幕起點。新增 `patient.js` 把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。取姓名走四層 fallback，因為 Patient 上幾乎所有欄位都是選填的 |
 | `day16-clinical-data/` | day16 呈現臨床資料（一） | 新增 `vitals.js`，把血壓與體重從 Observation 挖出來畫成雙 y 軸趨勢圖。血壓的值裝在 `component` 裡，體重直接掛在資源上，同一種資源兩種結構，取值要分開寫。畫圖用 Chart.js |
+| `day17-clinical-data/` | day17 呈現臨床資料（二） | 新增 `clinical.js`，把病況與用藥列成兩張表。CodeableConcept 取顯示文字寫成 `text` 到 `display` 到 `code` 的三層優先序，狀態欄位另走一個只取 `code` 的函式，再自己對照成中文。版面用免建置的 `@tailwindcss/browser`，一個 script 標籤沒有設定檔 |
 
 系列還在進行中，後面的資料夾會隨文章發布陸續加進來。
 
@@ -83,6 +84,8 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 | `vendor/fhir-client.pure.min.js` | 2.6.3 | Apache-2.0 | [smart-on-fhir/client-js](https://github.com/smart-on-fhir/client-js) |
 | `vendor/fhir-client.pure.min.js.LICENSE.txt` | — | MIT | 上面那支檔案打包進去的第三方程式碼授權聲明，由它開頭的 banner 指名 |
 | `vendor/chart.umd.js` | 4.5.1 | MIT | [chartjs/Chart.js](https://github.com/chartjs/Chart.js) |
+| `vendor/tailwind-browser.js` | 4.3.3 | MIT | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) 的 `@tailwindcss/browser` |
+| `vendor/tailwind-browser.js.LICENSE.txt` | — | MIT | 上面那支檔案的授權全文。它本身沒有 banner，所以另存一份，逐字取自該版本 tag 的 `LICENSE` |
 
 這些檔案都已經下載進版控，clone 下來不需要網路就能跑，執行期也不連 CDN。要自己重抓的話：
 
@@ -95,8 +98,16 @@ curl -o vendor/fhir-client.pure.min.js.LICENSE.txt \
 
 curl -o vendor/chart.umd.js \
   https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js
+
+curl -o vendor/tailwind-browser.js \
+  https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js
+
+curl -o vendor/tailwind-browser.js.LICENSE.txt \
+  https://raw.githubusercontent.com/tailwindlabs/tailwindcss/v4.3.3/LICENSE
 ```
 
 `day04` 到 `day09` 這三個資料夾都還沒用到這支 client，`day12-launch-context/` 才正式換過去，整份 `app.js` 靠它重寫。
 
-`chart.umd.js` 只有 `day16-clinical-data/` 用得到，208518 bytes，那是免建置畫圖換來的代價。
+`chart.umd.js` 從 `day16-clinical-data/` 開始用得到，208518 bytes，那是免建置畫圖換來的代價。
+
+`tailwind-browser.js` 從 `day17-clinical-data/` 開始用得到，282289 bytes。它是跑在瀏覽器裡的 JIT 編譯器，掃 DOM 上的 class 即時產生 CSS，所以不需要 npm 也不需要建置步驟。**官方說這個版本只適合開發，不要用在正式環境**，因為每個使用者的瀏覽器都要跑一次編譯。正式做法是裝 npm 加一個建置步驟，讓它事先產出一份只含用到的 class 的靜態 CSS。
