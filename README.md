@@ -2,6 +2,12 @@
 
 用瀏覽器原生 JavaScript 寫的 SMART on FHIR app，沒有打包工具、沒有框架、不需要 Node.js。
 
+**[打開線上版](https://losehrt.github.io/ithome-2026-smart-app/)**，每一天都可以直接點進去跑，不用 clone 也不用起伺服器。
+
+[![day17 的執行畫面](screenshot-day17.png)](https://losehrt.github.io/ithome-2026-smart-app/day17-clinical-data/)
+
+上面是 day17 跑起來的樣子：走完 SMART 授權，讀出病人基本資料、生命徵象趨勢，以及病況與用藥兩張表。資料來自公開測試 sandbox 的合成病人。
+
 ## 這是什麼
 
 這些程式碼重走了一次「火線超人」的路。火線超人是一套已經在跑的醫療資料應用，用 Rails 寫的，接真實的醫院 FHIR 伺服器。這裡把同一套協定用最多人會的技術再實作一次。
@@ -29,16 +35,20 @@ python3 -m http.server 5173
 
 每一天一個資料夾，各自是一份完整可跑的專案，讀到哪一天就進那個資料夾，不用回頭拼湊前幾天的檔案。
 
+第一欄的資料夾名稱點下去是那一天的線上版，直接在瀏覽器裡跑。
+
 | 資料夾 | 對應文章 | 內容 |
 |---|---|---|
-| `day04-sandbox-setup/` | day04 開發環境準備 | 連上公開 FHIR server，畫面顯示「連線成功：Patient/…」 |
-| `day06-smart-discovery/` | day06 SMART Discovery 與能力探索 | 新增 `discovery.js`，問出授權端點與 token 端點 |
-| `day09-first-authorization/` | day09 從頭跑完一次授權 | 再加上 `pkce.js` 與 `auth.js`，走完一趟 standalone 授權，console 印出 access token 與 patient id |
-| `day12-launch-context/` | day12 解析 Launch Context | 換用 `fhirclient`，`app.js` 整份替換成三十行不到的版本，畫面從 patient id 變成病人姓名與生日。其餘五個檔案與 day09 一字不差，`discovery.js`、`pkce.js`、`auth.js` 不再被引用但留著 |
-| `day14-token-lifecycle/` | day14 Token 的生命週期 | 第二幕終態，只剩 `index.html`、`app.js`、`vendor/` 三樣。`SCOPE` 加上 `offline_access`，多一顆按鈕手動換 token，並把用過的那張 refresh token 再送一次看伺服器收不收 |
-| `day15-first-smart-app/` | day15 第一個 SMART app | 第三幕起點。新增 `patient.js` 把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。取姓名走四層 fallback，因為 Patient 上幾乎所有欄位都是選填的 |
-| `day16-clinical-data/` | day16 呈現臨床資料（一） | 新增 `vitals.js`，把血壓與體重從 Observation 挖出來畫成雙 y 軸趨勢圖。血壓的值裝在 `component` 裡，體重直接掛在資源上，同一種資源兩種結構，取值要分開寫。畫圖用 Chart.js |
-| `day17-clinical-data/` | day17 呈現臨床資料（二） | 新增 `clinical.js`，把病況與用藥列成兩張表。CodeableConcept 取顯示文字寫成 `text` 到 `display` 到 `code` 的三層優先序，狀態欄位另走一個只取 `code` 的函式，再自己對照成中文。版面用免建置的 `@tailwindcss/browser`，一個 script 標籤沒有設定檔 |
+| [`day04-sandbox-setup/`](https://losehrt.github.io/ithome-2026-smart-app/day04-sandbox-setup/) | day04 開發環境準備 | 連上公開 FHIR server，畫面顯示「連線成功：Patient/…」 |
+| [`day06-smart-discovery/`](https://losehrt.github.io/ithome-2026-smart-app/day06-smart-discovery/) | day06 SMART Discovery 與能力探索 | 新增 `discovery.js`，問出授權端點與 token 端點 |
+| [`day09-first-authorization/`](https://losehrt.github.io/ithome-2026-smart-app/day09-first-authorization/) | day09 從頭跑完一次授權 | 再加上 `pkce.js` 與 `auth.js`，走完一趟 standalone 授權，console 印出 access token 與 patient id |
+| [`day12-launch-context/`](https://losehrt.github.io/ithome-2026-smart-app/day12-launch-context/) | day12 解析 Launch Context | 換用 `fhirclient`，`app.js` 整份替換成三十行不到的版本，畫面從 patient id 變成病人姓名與生日。其餘五個檔案與 day09 一字不差，`discovery.js`、`pkce.js`、`auth.js` 不再被引用但留著 |
+| [`day14-token-lifecycle/`](https://losehrt.github.io/ithome-2026-smart-app/day14-token-lifecycle/) | day14 Token 的生命週期 | 第二幕終態，只剩 `index.html`、`app.js`、`vendor/` 三樣。`SCOPE` 加上 `offline_access`，多一顆按鈕手動換 token，並把用過的那張 refresh token 再送一次看伺服器收不收 |
+| [`day15-first-smart-app/`](https://losehrt.github.io/ithome-2026-smart-app/day15-first-smart-app/) | day15 第一個 SMART app | 第三幕起點。新增 `patient.js` 把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。取姓名走四層 fallback，因為 Patient 上幾乎所有欄位都是選填的 |
+| [`day16-clinical-data/`](https://losehrt.github.io/ithome-2026-smart-app/day16-clinical-data/) | day16 呈現臨床資料（一） | 新增 `vitals.js`，把血壓與體重從 Observation 挖出來畫成雙 y 軸趨勢圖。血壓的值裝在 `component` 裡，體重直接掛在資源上，同一種資源兩種結構，取值要分開寫。畫圖用 Chart.js |
+| [`day17-clinical-data/`](https://losehrt.github.io/ithome-2026-smart-app/day17-clinical-data/) | day17 呈現臨床資料（二） | 新增 `clinical.js`，把病況與用藥列成兩張表。CodeableConcept 取顯示文字寫成 `text` 到 `display` 到 `code` 的三層優先序，狀態欄位另走一個只取 `code` 的函式，再自己對照成中文。版面用免建置的 `@tailwindcss/browser`，一個 script 標籤沒有設定檔 |
+
+連著跑好幾天的話，換一天之前先重新整理並清掉分頁的 session。授權結果存在 `sessionStorage`，同一個網域底下共用，後面那天會沿用前一天那張 token，而每一天要的 scope 並不相同。最容易看出來的是 day14：沿用 day12 的 token 就沒有 refresh token，那一天的手動換 token 會換不成。本機把每個資料夾都跑在同一個 port 也是一樣的情形。
 
 系列還在進行中，後面的資料夾會隨文章發布陸續加進來。
 
@@ -48,9 +58,9 @@ day10 與 day11 也沒有各自的資料夾。兩篇的跟著做都是改 `auth.
 
 day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著做的第四步是換成醫護身分再跑一次，收穫是兩種身分之下 `fhirUser` 指向的資源型別不同。任何一份靜態資料夾都只能凍結其中一次。開 `day14-token-lifecycle/` 就有那幾行讀 `id_token` 的寫法。
 
-## 跑之前要先改一行
+## sandbox 設定可以換成自己的
 
-下面這些檔案裡的 FHIR base URL 帶著一串 `/sim/` 編碼，那是模擬設定，每個人不一樣：
+**每一份都可以直接跑，不必先改任何一行。** 下面這些檔案裡的 FHIR base URL 帶著一串 `/sim/` 編碼，那是 Launcher 的模擬設定，但它是無狀態的：整組設定就編在那串字裡，不綁任何人的 session，所以檔案裡已經填好的那串誰拿去用都成立。
 
 | 檔案 | 常數 |
 |---|---|
@@ -60,10 +70,15 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 | `day14-token-lifecycle/app.js` | `FHIR_BASE_URL` |
 | `day15-first-smart-app/app.js` | `FHIR_BASE_URL` |
 | `day16-clinical-data/app.js` | `FHIR_BASE_URL` |
+| `day17-clinical-data/app.js` | `FHIR_BASE_URL` |
 
-到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。沒換的話抓不到端點，授權也會被授權伺服器擋下來。
+這七份填的是同一串，解碼後是 `[3,"","","AUTO",…]`，也就是 Patient Standalone Launch 加自動選病人，沒有指定客戶端也沒有限制 scope。
 
-`day04-sandbox-setup/` 不用改，它連的是 `https://r4.smarthealthit.org`，不需要授權。
+要換成自己的就到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。
+
+**day13 的跟著做一定要換。** 那一篇的第四步是把 `FHIR_BASE_URL` 與 `SCOPE` 換成醫護身分再跑一次，比較兩種身分之下 `fhirUser` 指向的資源型別，不換就只看得到病人那一邊。day10 與 day11 也要改設定，但改的是 `SCOPE` 那個常數，base URL 不動。
+
+`day04-sandbox-setup/` 不在這張表裡，它連的是 `https://r4.smarthealthit.org`，不需要授權也沒有模擬設定。
 
 ## 資料都是假的
 

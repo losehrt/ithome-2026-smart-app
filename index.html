@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMART on FHIR 範例程式</title>
+<style>
+  :root {
+    --fg: #1b1f23;
+    --muted: #57606a;
+    --line: #d8dee4;
+    --bg: #ffffff;
+    --accent: #0969da;
+    --warn-bg: #fff8c5;
+    --warn-line: #d4a72c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fg: #e6edf3;
+      --muted: #9198a1;
+      --line: #30363d;
+      --bg: #0d1117;
+      --accent: #4493f8;
+      --warn-bg: #2d2611;
+      --warn-line: #9e6a03;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+          "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; }
+  h1 { font-size: 1.65rem; line-height: 1.35; margin: 0 0 .5rem; }
+  h2 { font-size: 1.1rem; margin: 2.5rem 0 .75rem; }
+  p { margin: 0 0 1rem; }
+  .lede { color: var(--muted); }
+  a { color: var(--accent); }
+  .warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 6px;
+    padding: .9rem 1.1rem;
+    margin: 1.75rem 0;
+  }
+  .warn p:last-child { margin-bottom: 0; }
+  ol { list-style: none; padding: 0; margin: 0; }
+  li {
+    border-top: 1px solid var(--line);
+    padding: 1rem 0;
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 0 1rem;
+  }
+  li:last-child { border-bottom: 1px solid var(--line); }
+  .day { color: var(--muted); font-variant-numeric: tabular-nums; padding-top: .1rem; }
+  .title { font-weight: 600; margin: 0 0 .25rem; }
+  .desc { color: var(--muted); margin: 0; font-size: .95rem; }
+  .tag {
+    display: inline-block;
+    font-size: .75rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 .5rem;
+    margin-left: .4rem;
+    vertical-align: .1em;
+    white-space: nowrap;
+  }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  @media (max-width: 30rem) {
+    li { grid-template-columns: 1fr; gap: .25rem; }
+    .day { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>SMART on FHIR 範例程式</h1>
+
+<p class="lede">
+用瀏覽器原生 JavaScript 寫的 SMART on FHIR app，沒有打包工具、沒有框架、不需要 Node.js。
+出自 2026 iThome 鐵人賽的<a href="https://ithelp.ithome.com.tw/users/20183398/ironman/9100">一個系列</a>，
+每個資料夾對應一篇文章。程式碼在 <a href="https://github.com/losehrt/ithome-2026-smart-app">GitHub</a>。
+</p>
+
+<p>
+下面每一天都是一份完整可跑的專案，點進去就會在你的瀏覽器裡跑起來，
+跟 clone 下來自己起靜態伺服器跑的是同一份程式碼，行為沒有差別。
+</p>
+
+<p class="desc">
+連著跑好幾天的話，換一天之前先重新整理並清掉分頁的 session。
+授權結果存在 <code>sessionStorage</code>，同一個網域底下共用，
+後面那天會直接沿用前一天那張 token，而每一天要的 scope 並不相同。
+最容易看出來的是 day14：沿用 day12 的 token 就沒有 refresh token，
+那一天的手動換 token 會換不成。
+</p>
+
+<div class="warn">
+<p>
+<strong>這是教學範例，不是醫療服務。</strong>
+所有範例連的都是 SMART Health IT 的公開測試 sandbox，裡面的病人由 Synthea 合成，不是去識別化的真人資料。
+</p>
+<p>
+那個 sandbox 是<strong>共用的</strong>，任何人寫進去的東西大家都看得到。
+<strong>絕對不要放入真實病人資料，一筆都不要</strong>，包括拿真人的姓名或生日去測試。
+</p>
+</div>
+
+<h2>目前有哪些</h2>
+
+<ol>
+
+<li>
+  <span class="day">day04</span>
+  <div>
+    <p class="title"><a href="./day04-sandbox-setup/">開發環境準備</a><span class="tag">不需授權</span></p>
+    <p class="desc">連上公開 FHIR server，畫面顯示連線成功與拿到的病人參照。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day06</span>
+  <div>
+    <p class="title"><a href="./day06-smart-discovery/">SMART Discovery 與能力探索</a><span class="tag">不需授權</span></p>
+    <p class="desc">從 <code>.well-known/smart-configuration</code> 問出授權端點與 token 端點。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day09</span>
+  <div>
+    <p class="title"><a href="./day09-first-authorization/">從頭跑完一次授權</a></p>
+    <p class="desc">自己寫 PKCE 與授權碼流程，走完一趟 standalone 授權，console 印出 access token 與 patient id。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day12</span>
+  <div>
+    <p class="title"><a href="./day12-launch-context/">解析 Launch Context</a></p>
+    <p class="desc">換用 fhirclient 函式庫，同一件事從一百多行變成三十行不到，畫面從 patient id 變成病人姓名與生日。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day14</span>
+  <div>
+    <p class="title"><a href="./day14-token-lifecycle/">Token 的生命週期</a></p>
+    <p class="desc">多一顆按鈕手動換 token，再把用過的那張 refresh token 送一次，看伺服器收不收。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day15</span>
+  <div>
+    <p class="title"><a href="./day15-first-smart-app/">第一個 SMART app</a></p>
+    <p class="desc">把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day16</span>
+  <div>
+    <p class="title"><a href="./day16-clinical-data/">呈現臨床資料（一）</a></p>
+    <p class="desc">把血壓與體重從 Observation 挖出來畫成雙 y 軸趨勢圖。同一種資源兩種結構，取值要分開寫。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day17</span>
+  <div>
+    <p class="title"><a href="./day17-clinical-data/">呈現臨床資料（二）</a></p>
+    <p class="desc">把病況與用藥列成兩張表，處理 CodeableConcept 的三層取值順序與臨床狀態欄位。</p>
+  </div>
+</li>
+
+</ol>
+
+<p class="desc" style="margin-top:1.25rem">
+系列還在進行中，後面的資料夾會隨文章發布陸續加進來。
+中間跳過的那幾天沒有各自的專案，原因寫在
+<a href="https://github.com/losehrt/ithome-2026-smart-app#目前有哪些">README</a> 裡。
+</p>
+
+<h2>想自己跑</h2>
+
+<p>
+不必改任何一行就能跑，檔案裡填好的 sandbox 設定是一串無狀態的編碼，誰拿去用都成立。
+想換成自己的病人或情境，到
+<a href="https://launch.smarthealthit.org/">SMART Health IT Launcher</a>
+產生一組貼回去即可，細節看 README。
+</p>
+
+<footer>
+程式碼採 MIT 授權，<code>vendor/</code> 底下的第三方檔案各自帶著自己的授權條款。
+</footer>
+
+</main>
+</body>
+</html>
