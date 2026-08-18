@@ -47,6 +47,7 @@ python3 -m http.server 5173
 | [`day15-first-smart-app/`](https://losehrt.github.io/ithome-2026-smart-app/day15-first-smart-app/) | day15 第一個 SMART app | 第三幕起點。新增 `patient.js` 把 Patient 資源整理成姓名、性別、生日、病歷號四個欄位，畫面第一次有東西可以給人看。取姓名走四層 fallback，因為 Patient 上幾乎所有欄位都是選填的 |
 | [`day16-clinical-data/`](https://losehrt.github.io/ithome-2026-smart-app/day16-clinical-data/) | day16 呈現臨床資料（一） | 新增 `vitals.js`，把血壓與體重從 Observation 挖出來畫成雙 y 軸趨勢圖。血壓的值裝在 `component` 裡，體重直接掛在資源上，同一種資源兩種結構，取值要分開寫。畫圖用 Chart.js |
 | [`day17-clinical-data/`](https://losehrt.github.io/ithome-2026-smart-app/day17-clinical-data/) | day17 呈現臨床資料（二） | 新增 `clinical.js`，把病況與用藥列成兩張表。CodeableConcept 取顯示文字寫成 `text` 到 `display` 到 `code` 的三層優先序，狀態欄位另走一個只取 `code` 的函式，再自己對照成中文。版面用免建置的 `@tailwindcss/browser`，一個 script 標籤沒有設定檔 |
+| [`day18-write-back/`](https://losehrt.github.io/ithome-2026-smart-app/day18-write-back/) | day18 寫回 FHIR | 新增 `write.js`，把自己量的血壓存回伺服器。`SCOPE` 加一個 `c` 同意畫面就多一行，POST 回 201，但 `Location` 與 `ETag` 在瀏覽器裡因為 CORS 讀不到，新資源的 id 只能從回應 body 取 |
 
 連著跑好幾天的話，換一天之前先重新整理並清掉分頁的 session。授權結果存在 `sessionStorage`，同一個網域底下共用，後面那天會沿用前一天那張 token，而每一天要的 scope 並不相同。最容易看出來的是 day14：沿用 day12 的 token 就沒有 refresh token，那一天的手動換 token 會換不成。本機把每個資料夾都跑在同一個 port 也是一樣的情形。
 
@@ -71,8 +72,9 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 | `day15-first-smart-app/app.js` | `FHIR_BASE_URL` |
 | `day16-clinical-data/app.js` | `FHIR_BASE_URL` |
 | `day17-clinical-data/app.js` | `FHIR_BASE_URL` |
+| `day18-write-back/app.js` | `FHIR_BASE_URL` |
 
-這七份填的是同一串，解碼後是 `[3,"","","AUTO",…]`，也就是 Patient Standalone Launch 加自動選病人，沒有指定客戶端也沒有限制 scope。
+這八份填的是同一串，解碼後是 `[3,"","","AUTO",…]`，也就是 Patient Standalone Launch 加自動選病人，沒有指定客戶端也沒有限制 scope。
 
 要換成自己的就到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。
 
@@ -87,6 +89,10 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 那是公開的測試環境，**資料是共用的**，任何人寫進去的東西大家都看得到。
 
 **絕對不要放入真實病人資料，一筆都不要**，包括拿真人的姓名或生日去測試。
+
+從 `day18-write-back/` 開始，範例會**寫資料進去**。你寫進去的東西會留在上面，不會自動清掉，測完想清就自己送一個 `DELETE /Observation/{id}`，回 200 就是刪掉了。
+
+那個資料夾的 `SCOPE` 含 `c`（寫成 `patient/*.crs`），跑起來就有寫入權限。這台 sandbox 在資源端不檢查 scope，所以權限設錯在這裡不一定看得出來，換到真實 EHR 才會變成 403。
 
 ## 授權
 

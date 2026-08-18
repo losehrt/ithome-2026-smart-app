@@ -117,6 +117,10 @@
 那個 sandbox 是<strong>共用的</strong>，任何人寫進去的東西大家都看得到。
 <strong>絕對不要放入真實病人資料，一筆都不要</strong>，包括拿真人的姓名或生日去測試。
 </p>
+<p>
+標著「會寫入」的那幾天會真的把資料寫進去，而且不會自動清掉。
+測完請自己送一個 <code>DELETE /Observation/{id}</code> 把它刪掉。
+</p>
 </div>
 
 <h2>目前有哪些</h2>
@@ -184,6 +188,14 @@
   <div>
     <p class="title"><a href="./day17-clinical-data/">呈現臨床資料（二）</a></p>
     <p class="desc">把病況與用藥列成兩張表，處理 CodeableConcept 的三層取值順序與臨床狀態欄位。</p>
+  </div>
+</li>
+
+<li>
+  <span class="day">day18</span>
+  <div>
+    <p class="title"><a href="./day18-write-back/">寫回 FHIR</a><span class="tag">會寫入</span></p>
+    <p class="desc">把自己量的血壓存回伺服器。POST 回 201，但 <code>Location</code> 與 <code>ETag</code> 在瀏覽器裡讀不到。測完記得把那筆刪掉。</p>
   </div>
 </li>
 
