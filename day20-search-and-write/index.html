@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <title>SMART App</title>
+  </head>
+  <body class="bg-slate-50 text-slate-900 p-6 md:p-10">
+    <div class="mx-auto max-w-3xl space-y-8">
+      <h1 class="text-2xl font-bold">我的健康資料</h1>
+    <p id="status" class="text-slate-600">載入中…</p>
+    <button id="connect" hidden class="rounded bg-slate-800 px-4 py-2 text-white">連線到 FHIR 伺服器</button>
+    <dl id="patient" hidden class="grid grid-cols-[6rem_1fr] gap-y-1 rounded bg-white p-4 shadow-sm"></dl>
+
+    <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">生命徵象趨勢</h2>
+    <canvas id="vitals" height="140"></canvas>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">病況</h2>
+        <div id="conditions" class="text-slate-500">尚未載入</div>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">用藥</h2>
+        <div id="medications" class="text-slate-500">尚未載入</div>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">自己量的血壓</h2>
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="text-sm">收縮壓
+            <input id="systolic" type="number" value="118"
+                   class="ml-1 w-20 rounded border border-slate-300 px-2 py-1" />
+          </label>
+          <label class="text-sm">舒張壓
+            <input id="diastolic" type="number" value="76"
+                   class="ml-1 w-20 rounded border border-slate-300 px-2 py-1" />
+          </label>
+          <button id="save-bp" disabled
+                  class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-40">存回伺服器</button>
+        </div>
+        <p id="write-result" class="mt-2 text-sm text-slate-600"></p>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">錯誤長什麼樣</h2>
+        <div class="flex flex-wrap gap-2">
+          <button data-case="notfound"
+                  class="rounded border border-slate-300 px-3 py-1 text-sm">讀一個不存在的 id</button>
+          <button data-case="badparam"
+                  class="rounded border border-slate-300 px-3 py-1 text-sm">用一個不支援的參數</button>
+          <button data-case="badtoken"
+                  class="rounded border border-slate-300 px-3 py-1 text-sm">帶一個亂寫的 token</button>
+          <button data-case="mismatch"
+                  class="rounded border border-slate-300 px-3 py-1 text-sm">送錯資源型別</button>
+        </div>
+        <p id="error-result" class="mt-2 text-sm"></p>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">分頁</h2>
+        <button id="run-paging"
+                class="rounded border border-slate-300 px-3 py-1 text-sm">跟完所有分頁</button>
+      </section>
+    </div>
+
+    <script src="vendor/tailwind-browser.js"></script>
+    <script src="vendor/fhir-client.pure.min.js"></script>
+    <script src="vendor/chart.umd.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
