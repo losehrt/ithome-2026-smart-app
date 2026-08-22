@@ -27,20 +27,39 @@ const errorResult = document.querySelector('#error-result')
 // 第二個參數只接 ready() 自己的失敗，也就是還沒授權。
 // 寫成 .then(showPatient).catch(offerConnect) 的話，
 // showPatient() 裡的讀取失敗也會掉進 offerConnect()，
-// 畫面會叫使用者去按一顆已經被移除的按鈕。
+// 畫面會叫一個已經授權完的人再去挑一次醫院。
 FHIR.oauth2.ready().then(showPatient, offerConnect)
+
+// 綁定只做一次，授權前後共用同一組按鈕。
+for (const button of connectButton.querySelectorAll('[data-server]')) {
+  button.addEventListener('click', () => authorize(button.dataset.server))
+}
+document.querySelector('#forget').addEventListener('click', () => {
+  forgetDiscovery()
+  status.textContent = 'discovery 快取已清掉，下次連線會重抓'
+})
 
 function offerConnect() {
   status.textContent = '還沒授權，挑一家醫院開始'
-  connectButton.hidden = false
 
   for (const button of connectButton.querySelectorAll('[data-server]')) {
-    button.addEventListener('click', () => authorize(button.dataset.server))
+    button.hidden = false
+    button.textContent = `連線到 ${SERVERS[button.dataset.server].label}`
   }
-  document.querySelector('#forget').addEventListener('click', () => {
-    forgetDiscovery()
-    status.textContent = 'discovery 快取已清掉，下次連線會重抓'
-  })
+  connectButton.hidden = false
+}
+
+// 授權完之後三顆都留著。目前這家換成「重新連」，那不是多餘的按鈕：
+// 要驗證 discovery 有沒有命中快取，就是在已連 A 的狀態下再連一次 A。
+// 清快取那顆跟授權狀態無關，一直留著，day22 要按它才示範得出快取行為。
+function showSwitchControls(currentKey) {
+  for (const button of connectButton.querySelectorAll('[data-server]')) {
+    const key = button.dataset.server
+    const label = SERVERS[key].label
+    button.hidden = false
+    button.textContent = key === currentKey ? `重新連 ${label}` : `換到 ${label}`
+  }
+  connectButton.hidden = false
 }
 
 async function authorize(key) {
@@ -60,7 +79,7 @@ async function authorize(key) {
 }
 
 async function showPatient(client) {
-  connectButton.remove()
+  showSwitchControls(sessionStorage.getItem(SERVER_KEY) ?? 'a')
   status.textContent = '讀取中…'
 
   try {
