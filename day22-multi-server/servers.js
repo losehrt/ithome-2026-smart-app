@@ -1,5 +1,6 @@
 // day21：每家醫院一組獨立的 credentials。
-// day22：discovery 結果快取起來，不要每次授權都重抓。
+// day22：多加一層 discovery 快取。注意 fhirclient 授權時仍會自行重抓，
+// 這一層省下的是我們自己發的那一次。
 
 export const SERVERS = {
   a: {
@@ -29,8 +30,8 @@ function readCache() {
   }
 }
 
-// 快取的 key 是 FHIR base URL 而不是醫院代號，因為同一家醫院換了端點
-// 就是換了一台伺服器，舊的快取本來就不該再用。
+// 快取的 key 是 FHIR base URL 而不是醫院代號。
+// 同一家醫院只要換了 base URL，就不該再命中舊 URL 留下的那份快取。
 export async function getConfiguration(server) {
   const cache = readCache()
   const hit = cache[server.fhirBaseUrl]

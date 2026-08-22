@@ -67,7 +67,8 @@ async function authorize(key) {
   // 記住這次選了哪一家，導回來之後才知道要顯示哪一家的名字
   sessionStorage.setItem(SERVER_KEY, key)
 
-  // 先過快取。命中就不會發出 .well-known 請求。
+  // 先過我們這一層快取。命中的話這一層不發請求，
+  // 但下一行的 fhirclient 仍會自行抓一次 discovery。
   await getConfiguration(server)
 
   FHIR.oauth2.authorize({
