@@ -50,6 +50,7 @@ python3 -m http.server 5173
 | [`day18-write-back/`](https://losehrt.github.io/ithome-2026-smart-app/day18-write-back/) | day18 寫回 FHIR | 新增 `write.js`，把自己量的血壓存回伺服器。`SCOPE` 加一個 `c` 同意畫面就多一行，POST 回 201，但 `Location` 與 `ETag` 在瀏覽器裡因為 CORS 讀不到，新資源的 id 只能從回應 body 取 |
 | [`day19-error-handling/`](https://losehrt.github.io/ithome-2026-smart-app/day19-error-handling/) | day19 FHIR 伺服器的處理錯誤 | 新增 `errors.js`，六顆按鈕各觸發一種失敗。先看 `Content-Type` 再決定怎麼解析，因為 401 回的是純文字而不是 `OperationOutcome`，無條件呼叫 `response.json()` 會在那裡丟例外。走 `client.request()` 的那一顆只能讀 `status` 與 `message`，body 在 throw 之前就被 `parse()` 讀掉了 |
 | [`day20-search-and-write/`](https://losehrt.github.io/ithome-2026-smart-app/day20-search-and-write/) | day20 FHIR 搜尋，分頁不要自己算 | 新增 `search.js`，跟完 10 頁 94 筆。分頁只能照抄 `next`，自己算 offset 在這台行不通，因為它的 `next` 換成了一串 `_getpages` 的暫存 id。`_include` 帶回來的資源要看 `entry.search.mode` 才分得出哪幾筆是你查的 |
+| [`day22-multi-server/`](https://losehrt.github.io/ithome-2026-smart-app/day22-multi-server/) | day21 與 day22 兩家醫院 | 第三幕終態。新增 `servers.js`，兩家醫院各自一組 `clientId` 與 `scope`，端點靠 discovery 問出來並快取一天。拿 B 醫院的 token 去打 A 醫院不會回 403，它回 200 加一份標著 `SUBSETTED` 的殘缺資料 |
 
 連著跑好幾天的話，換一天之前先重新整理並清掉分頁的 session。授權結果存在 `sessionStorage`，同一個網域底下共用，後面那天會沿用前一天那張 token，而每一天要的 scope 並不相同。最容易看出來的是 day14：沿用 day12 的 token 就沒有 refresh token，那一天的手動換 token 會換不成。本機把每個資料夾都跑在同一個 port 也是一樣的情形。
 
@@ -81,6 +82,8 @@ day13 也沒有。那一篇在 `app.js` 裡加幾行讀 `id_token`，但跟著�
 這十份填的是同一串，解碼後是 `[3,"","","AUTO",…]`，也就是 Patient Standalone Launch 加自動選病人，沒有指定客戶端也沒有限制 scope。
 
 要換成自己的就到 [SMART Health IT Launcher](https://launch.smarthealthit.org/)，Launch Type 選 **Patient Standalone Launch**，複製 **Server's FHIR Base URL** 欄位那一整串貼上去。
+
+`day22-multi-server/` 不在上面那張表裡。它的兩家醫院各有一組設定，寫在 `servers.js` 的 `SERVERS.a` 與 `SERVERS.b`，每一組除了 `fhirBaseUrl` 還有自己的 `clientId` 與 `scope`。要換成自己的，就在 Launcher 開兩份設定，填不同的 Client ID、Scopes 與病人，再把兩串 base URL 各自貼進去。
 
 **day13 的跟著做一定要換。** 那一篇的第四步是把 `FHIR_BASE_URL` 與 `SCOPE` 換成醫護身分再跑一次，比較兩種身分之下 `fhirUser` 指向的資源型別，不換就只看得到病人那一邊。day10 與 day11 也要改設定，但改的是 `SCOPE` 那個常數，base URL 不動。
 
