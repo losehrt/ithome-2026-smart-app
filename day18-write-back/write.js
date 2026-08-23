@@ -76,7 +76,25 @@ export async function createRaw(client, resource) {
     location: response.headers.get('location'),
     etag: response.headers.get('etag'),
     exposedHeaders: [...response.headers.keys()],
-    body: await response.json(),
+    body: await readBody(response),
+  }
+}
+
+// 失敗的回應不一定是 JSON。401 常常回一整頁 HTML，204 根本沒有 body。
+// 直接 .json() 的話會丟出一個解析錯誤，把原本那個看得懂的狀態碼蓋掉，
+// 畫面上就只剩「Unexpected token < in JSON」這種跟病人無關的訊息。
+async function readBody(response) {
+  const text = await response.text()
+  if (!text) return null
+
+  try {
+    return JSON.parse(text)
+  } catch {
+    // 包成 OperationOutcome 的形狀，讓上層用同一條路徑取錯誤訊息。
+    return {
+      resourceType: 'OperationOutcome',
+      issue: [{ severity: 'error', diagnostics: text.slice(0, 200) }],
+    }
   }
 }
 

@@ -145,26 +145,81 @@ function report(name, failure) {
   errorResult.textContent = `HTTP ${failure.status}：${failure.userMessage}`
 }
 
+// 成功跟失敗要看得出差別。都印成同一種灰色的話，
+// 存不進去跟存好了在畫面上長得一模一樣，得瞇著眼睛讀字才知道。
+function showWriteResult(message, ok) {
+  const tone =
+    ok === null ? 'text-slate-600' : ok ? 'text-emerald-700' : 'text-rose-700'
+
+  writeResult.className = `mt-2 text-sm ${tone}`
+  writeResult.textContent = message
+}
+
+// FHIR 把錯誤的細節放在 OperationOutcome 裡，不是放在狀態碼上。
+// 只印 HTTP 422 的話，沒有人知道是哪個欄位不合格。
+function issueText(body) {
+  const issue = body?.issue?.[0]
+  return issue?.diagnostics ?? issue?.details?.text ?? '伺服器沒有說原因'
+}
+
 async function saveBloodPressure(client) {
+  // Number('') 是 0，而 Number.isFinite(0) 是 true。
+  // 照原本那樣送，欄位留空就會在病歷上留下一筆 0 mm[Hg] 的血壓。
+  const systolic = Number.parseFloat(systolicInput.value)
+  const diastolic = Number.parseFloat(diastolicInput.value)
+
+  if (!Number.isFinite(systolic) && !Number.isFinite(diastolic)) {
+    showWriteResult('先填收縮壓或舒張壓，至少要有一個值', false)
+    return
+  }
+
   saveButton.disabled = true
-  const resource = selfMeasuredBloodPressure(
-    client.patient.id,
-    Number(systolicInput.value),
-    Number(diastolicInput.value),
-    new Date().toISOString()
-  )
+  showWriteResult('存回伺服器中…', null)
 
-  const outcome = await createRaw(client, resource)
-  console.log('HTTP', outcome.status)
-  console.log('Location：', outcome.location)
-  console.log('ETag：', outcome.etag)
-  console.log('讀得到的 header：', outcome.exposedHeaders)
-  console.log('新資源 id：', outcome.body.id)
+  try {
+    const resource = selfMeasuredBloodPressure(
+      client.patient.id,
+      systolic,
+      diastolic,
+      new Date().toISOString()
+    )
 
-  writeResult.textContent = outcome.ok
-    ? `存好了，id 是 ${outcome.body.id}。重整頁面就會出現在上面的趨勢圖`
-    : `存不進去，HTTP ${outcome.status}`
-  saveButton.disabled = false
+    const outcome = await createRaw(client, resource)
+    console.log('HTTP', outcome.status)
+    console.log('Location：', outcome.location)
+    console.log('ETag：', outcome.etag)
+    console.log('讀得到的 header：', outcome.exposedHeaders)
+
+    if (!outcome.ok) {
+      console.error('寫入失敗：', outcome.body)
+      showWriteResult(
+        `存不進去，HTTP ${outcome.status}：${issueText(outcome.body)}`,
+        false
+      )
+      return
+    }
+
+    console.log('新資源 id：', outcome.body?.id)
+    showWriteResult(`存好了，id 是 ${outcome.body?.id}，正在更新趨勢圖…`, true)
+
+    // 重新查一次，不是把剛剛填的值直接畫上去。
+    // 畫上去只證明表單收到了值，查得回來才證明伺服器真的收下了。
+    await showVitals(client)
+    showWriteResult(
+      `存好了，id 是 ${outcome.body?.id}，趨勢圖最右邊那個點就是這一筆`,
+      true
+    )
+  } catch (error) {
+    // 斷網、DNS 解不出來、CORS 預檢被擋，這幾種是 fetch 自己 reject。
+    // 沒有這個 catch 的話畫面就停在原地，什麼都不會說，
+    // 按鈕也永遠鎖著，看起來像整個 app 當掉了。
+    console.error(error)
+    showWriteResult(`送不出去：${error.message}`, false)
+  } finally {
+    // 放 finally。上面任何一條路走掉都要把按鈕解開，
+    // 不然使用者只能重整頁面才能再按一次。
+    saveButton.disabled = false
+  }
 }
 
 async function showConditions(client) {

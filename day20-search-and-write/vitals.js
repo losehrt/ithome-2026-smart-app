@@ -16,8 +16,21 @@ function componentValue(observation, loincCode) {
   return hit?.valueQuantity?.value ?? null
 }
 
-function day(observation) {
-  return observation.effectiveDateTime?.slice(0, 10) ?? ''
+// 自己在家量血壓，一天量好幾次是常態，所以時間點切到分鐘，不是切到天。
+// 切到天的話，當天第一筆之後量的全部會被蓋掉，存進去了也看不見。
+//
+// 還有一件事：effectiveDateTime 存的是 UTC。台灣早上八點量的那筆
+// 在 UTC 是前一天午夜，照著前十個字切會標到錯的日子上去。
+// 轉成 Date 再取本地欄位，畫出來的日子才跟量的人記得的那天對得起來。
+function stamp(observation) {
+  const at = new Date(observation.effectiveDateTime ?? '')
+  if (Number.isNaN(at.getTime())) return ''
+
+  const pad = (value) => String(value).padStart(2, '0')
+  return (
+    `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}` +
+    ` ${pad(at.getHours())}:${pad(at.getMinutes())}`
+  )
 }
 
 // Synthea 產的值帶十幾位小數，129.75969944651848 這種數字
@@ -42,17 +55,23 @@ export async function loadVitals(client) {
 }
 
 export function toChartData({ bloodPressure, weight }) {
-  // x 軸用日期字串當分類，不是等距的時間軸。
+  // x 軸用時間字串當分類，不是等距的時間軸。
   // 這批資料一年一筆，間隔本來就不平均。
-  const labels = [...new Set([...bloodPressure, ...weight].map(day))]
+  // 格式固定寬度，所以字串排序出來就是時間順序。
+  const labels = [...new Set([...bloodPressure, ...weight].map(stamp))]
     .filter(Boolean)
     .sort()
 
-  const pick = (list, getValue) =>
-    labels.map((label) => {
-      const hit = list.find((one) => day(one) === label)
-      return hit ? round(getValue(hit)) : null
-    })
+  // 先建索引再照 labels 取值。原本用 find 逐筆掃，
+  // 同一個時間點上永遠只拿得到最先掃到的那一筆，後面的就不見了。
+  const pick = (list, getValue) => {
+    const byStamp = new Map()
+    for (const one of list) {
+      const key = stamp(one)
+      if (key) byStamp.set(key, round(getValue(one)))
+    }
+    return labels.map((label) => byStamp.get(label) ?? null)
+  }
 
   return {
     labels,
@@ -94,6 +113,11 @@ export function renderChart(canvas, data) {
       // 兩條線單位不同，一個 mm[Hg] 一個 kg。
       // 共用一個 y 軸的話，體重那條會被壓成一條貼著底的直線。
       scales: {
+        // label 現在帶到分鐘，字比原本長。
+        // 全部攤開會擠成一團，讓 Chart.js 自己決定跳過哪幾格。
+        x: {
+          ticks: { autoSkip: true, maxRotation: 45, minRotation: 45 },
+        },
         pressure: {
           type: 'linear',
           position: 'left',
