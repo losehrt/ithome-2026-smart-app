@@ -42,7 +42,16 @@ function round(value) {
 export async function loadVitals(client) {
   const query = (code) =>
     client.request(
-      `Observation?patient=${client.patient.id}&code=${code}&_sort=date&_count=100`,
+      {
+        url: `Observation?patient=${client.patient.id}&code=${code}&_sort=date&_count=100`,
+        // 這台伺服器的搜尋回應沒有 Cache-Control，也沒有 ETag 或 Last-Modified。
+        // 少了這些，瀏覽器不會去問「有沒有變」，而是自己決定這份答案還新鮮，
+        // 直接把上一次的結果拿出來用。存完血壓立刻重查，查到的會是存之前那份，
+        // 圖上少一個點，看起來就像根本沒寫進去。
+        //
+        // 第一個參數改成物件才放得下 fetch 的選項，fhirOptions 仍走第二個。
+        cache: 'no-store',
+      },
       { pageLimit: 0, flat: true }
     )
 
