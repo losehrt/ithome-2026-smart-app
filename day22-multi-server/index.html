@@ -15,23 +15,11 @@
       </div>
     <dl id="patient" hidden class="grid grid-cols-[6rem_1fr] gap-y-1 rounded bg-white p-4 shadow-sm"></dl>
 
-    <section class="rounded bg-white p-4 shadow-sm">
+      <section class="rounded bg-white p-4 shadow-sm">
         <h2 class="mb-2 font-semibold">生命徵象趨勢</h2>
-    <canvas id="vitals" height="140"></canvas>
-      </section>
+        <canvas id="vitals" height="140"></canvas>
 
-      <section class="rounded bg-white p-4 shadow-sm">
-        <h2 class="mb-2 font-semibold">病況</h2>
-        <div id="conditions" class="text-slate-500">尚未載入</div>
-      </section>
-
-      <section class="rounded bg-white p-4 shadow-sm">
-        <h2 class="mb-2 font-semibold">用藥</h2>
-        <div id="medications" class="text-slate-500">尚未載入</div>
-      </section>
-
-      <section class="rounded bg-white p-4 shadow-sm">
-        <h2 class="mb-2 font-semibold">自己量的血壓</h2>
+        <h3 class="mb-2 mt-4 font-semibold">自己量的血壓</h3>
         <div class="flex flex-wrap items-end gap-3">
           <label class="text-sm">收縮壓
             <input id="systolic" type="number" value="118"
@@ -45,6 +33,16 @@
                   class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-40">存回伺服器</button>
         </div>
         <p id="write-result" class="mt-2 text-sm text-slate-600"></p>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">病況</h2>
+        <div id="conditions" class="text-slate-500">尚未載入</div>
+      </section>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">用藥</h2>
+        <div id="medications" class="text-slate-500">尚未載入</div>
       </section>
 
       <section class="rounded bg-white p-4 shadow-sm">
