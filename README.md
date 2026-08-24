@@ -51,6 +51,7 @@ python3 -m http.server 5173
 | [`day19-error-handling/`](https://losehrt.github.io/ithome-2026-smart-app/day19-error-handling/) | day19 FHIR 伺服器的處理錯誤 | 新增 `errors.js`，六顆按鈕各觸發一種失敗。先看 `Content-Type` 再決定怎麼解析，因為 401 回的是純文字而不是 `OperationOutcome`，無條件呼叫 `response.json()` 會在那裡丟例外。走 `client.request()` 的那一顆只能讀 `status` 與 `message`，body 在 throw 之前就被 `parse()` 讀掉了 |
 | [`day20-search-and-write/`](https://losehrt.github.io/ithome-2026-smart-app/day20-search-and-write/) | day20 FHIR 搜尋，分頁不要自己算 | 新增 `search.js`，跟完 10 頁 94 筆。分頁只能照抄 `next`，自己算 offset 在這台行不通，因為它的 `next` 換成了一串 `_getpages` 的暫存 id。`_include` 帶回來的資源要看 `entry.search.mode` 才分得出哪幾筆是你查的 |
 | [`day22-multi-server/`](https://losehrt.github.io/ithome-2026-smart-app/day22-multi-server/) | day21 與 day22 兩家醫院 | 第三幕終態。新增 `servers.js`，兩家醫院各自一組 `clientId` 與 `scope`，端點靠 discovery 問出來並快取一天。拿 B 醫院的 token 去打 A 醫院不會回 403，它回 200 加一份標著 `SUBSETTED` 的殘缺資料 |
+| [`day24-cross-server/`](https://losehrt.github.io/ithome-2026-smart-app/day24-cross-server/) | day24 跨院合併時間軸 | 新增 `merge.js`，兩家各自授權後合併成一條 402 筆的時間軸，每一筆都標來源。排序不要拿字串比，兩家的時區偏移寫法只要不一樣，順序就會反過來；顯示日期也不要用 `slice(0, 10)`，那切的是 UTC 日期，台灣早上八點前的紀錄會顯示成前一天 |
 
 連著跑好幾天的話，換一天之前先重新整理並清掉分頁的 session。授權結果存在 `sessionStorage`，同一個網域底下共用，後面那天會沿用前一天那張 token，而每一天要的 scope 並不相同。最容易看出來的是 day14：沿用 day12 的 token 就沒有 refresh token，那一天的手動換 token 會換不成。本機把每個資料夾都跑在同一個 port 也是一樣的情形。
 

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <title>跨伺服器病歷整合</title>
+  </head>
+  <body class="bg-slate-50 text-slate-900 p-6 md:p-10">
+    <div class="mx-auto max-w-4xl space-y-6">
+      <h1 class="text-2xl font-bold">跨伺服器病歷整合</h1>
+      <p id="status" class="text-slate-600">載入中…</p>
+
+      <div id="connect" hidden class="flex flex-wrap gap-2">
+        <button
+          data-server="a"
+          class="rounded bg-slate-800 px-4 py-2 text-white"
+        >
+          授權 A 醫院
+        </button>
+        <button
+          data-server="b"
+          class="rounded bg-slate-800 px-4 py-2 text-white"
+        >
+          授權 B 醫院
+        </button>
+        <button
+          id="merge"
+          disabled
+          class="rounded bg-emerald-700 px-4 py-2 text-white disabled:bg-slate-300"
+        >
+          合併時間軸
+        </button>
+        <button
+          id="reset"
+          class="rounded border border-slate-300 px-4 py-2 text-sm"
+        >
+          清掉全部授權
+        </button>
+      </div>
+
+      <section class="rounded bg-white p-4 shadow-sm">
+        <h2 class="mb-2 font-semibold">各家讀到什麼</h2>
+        <div id="summary" class="text-slate-500">尚未合併</div>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-semibold">合併時間軸</h2>
+        <div id="timeline" class="overflow-x-auto"></div>
+      </section>
+    </div>
+
+    <script src="./vendor/tailwind-browser.js"></script>
+    <script src="./vendor/fhir-client.pure.min.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
